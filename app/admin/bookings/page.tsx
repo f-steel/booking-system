@@ -5,6 +5,7 @@ import { format } from "date-fns"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft } from "lucide-react"
+import { getStatusInfo } from "@/lib/booking-status";
 
 async function getAllBookings() {
   await requireAdmin()
@@ -72,17 +73,11 @@ export default async function AdminBookingsPage() {
                             {booking.customerName}
                           </p>
                           <span
-                            className={`px-2 py-1 text-xs rounded-full ${
-                              booking.status === "completed"
-                                ? "bg-green-100 text-green-800"
-                                : booking.status === "in_progress"
-                                ? "bg-blue-100 text-blue-800"
-                                : booking.status === "cancelled"
-                                ? "bg-red-100 text-red-800"
-                                : "bg-yellow-100 text-yellow-800"
+                            className={`px-2 py-1 text-xs font-medium rounded-full ${
+                              getStatusInfo(booking.status).color
                             }`}
                           >
-                            {booking.status}
+                            {getStatusInfo(booking.status).label}
                           </span>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
@@ -122,7 +117,8 @@ export default async function AdminBookingsPage() {
                           </p>
                         )}
                         <p className="text-xs text-muted-foreground mt-2">
-                          Created: {format(new Date(booking.createdAt), "PPP p")}
+                          Created:{" "}
+                          {format(new Date(booking.createdAt), "PPP p")}
                         </p>
                       </div>
                     </div>
@@ -134,6 +130,6 @@ export default async function AdminBookingsPage() {
         </Card>
       </div>
     </div>
-  )
+  );
 }
 

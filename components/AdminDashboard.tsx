@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { format } from "date-fns"
 import { Users, Calendar, Shield, Search } from "lucide-react"
 import Link from "next/link"
+import { getStatusInfo } from "@/lib/booking-status"
 
 interface User {
   id: string
@@ -232,17 +233,9 @@ export default function AdminDashboard({
                     <div className="flex items-center gap-2 mb-1">
                       <p className="font-medium">{booking.customerName}</p>
                       <span
-                        className={`px-2 py-0.5 text-xs rounded-full ${
-                          booking.status === "completed"
-                            ? "bg-green-100 text-green-800"
-                            : booking.status === "in_progress"
-                            ? "bg-blue-100 text-blue-800"
-                            : booking.status === "cancelled"
-                            ? "bg-red-100 text-red-800"
-                            : "bg-yellow-100 text-yellow-800"
-                        }`}
+                        className={`px-2 py-0.5 text-xs font-medium rounded-full ${getStatusInfo(booking.status).color}`}
                       >
-                        {booking.status}
+                        {getStatusInfo(booking.status).label}
                       </span>
                     </div>
                     <p className="text-sm text-muted-foreground">

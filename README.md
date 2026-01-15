@@ -1,6 +1,6 @@
-# FK Trainers - Booking System
+# Booking System
 
-A modern booking management system for FK Trainers shoe cleaning business, built with Next.js, TypeScript, Tailwind CSS, and Prisma.
+A modern booking management system for cleaning business, built with Next.js, TypeScript, Tailwind CSS, and Prisma.
 
 ## Features
 

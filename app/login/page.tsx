@@ -22,20 +22,34 @@ export default function LoginPage() {
     setLoading(true)
 
     try {
+      // Clear any previous error state
+      const normalizedEmail = email.trim().toLowerCase()
+      console.log("Login attempt for:", normalizedEmail)
+      
       const result = await signIn("credentials", {
-        email,
+        email: normalizedEmail,
         password,
         redirect: false,
       })
 
+      console.log("SignIn result:", result)
+
       if (result?.error) {
+        console.error("SignIn error:", result.error)
         setError("Invalid email or password")
-      } else {
+        // Clear password field on error
+        setPassword("")
+      } else if (result?.ok) {
         router.push("/")
         router.refresh()
+      } else {
+        setError("An error occurred. Please try again.")
+        setPassword("")
       }
     } catch (error) {
+      console.error("Login catch error:", error)
       setError("An error occurred. Please try again.")
+      setPassword("")
     } finally {
       setLoading(false)
     }

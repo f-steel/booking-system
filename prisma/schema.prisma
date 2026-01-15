@@ -23,6 +23,7 @@ model User {
   accounts      Account[]
   sessions      Session[]
   bookings      Booking[]
+  comments      Comment[]
 }
 
 model Account {
@@ -60,17 +61,52 @@ model VerificationToken {
 }
 
 model Booking {
-  id          String   @id @default(cuid())
-  customerName String
-  customerEmail String
-  customerPhone String?
-  shoeType    String
-  serviceType String
-  status      String   @default("pending") // pending, in_progress, completed, cancelled
-  notes       String?
-  scheduledDate DateTime
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  userId      String?
-  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  id                String   @id @default(cuid())
+  customerName      String
+  customerEmail     String
+  customerPhone     String?
+  shoeType          String
+  serviceType       String
+  status            String   @default("pending_confirmation") // pending_confirmation, confirmed, in_progress, ready_for_collection, completed, cancelled
+  notes             String?
+  scheduledDate     DateTime
+  collectionRequired Boolean  @default(false)
+  collectionAddress String?
+  collectionCity    String?
+  collectionPostcode String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  userId            String?
+  user              User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  photos            BookingPhoto[]
+  comments          Comment[]
+}
+
+model BookingPhoto {
+  id        String   @id @default(cuid())
+  bookingId String
+  booking   Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  url       String
+  caption   String?
+  createdAt DateTime @default(now())
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  bookingId String
+  booking   Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  message   String   @default("")
+  photos    CommentPhoto[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CommentPhoto {
+  id        String   @id @default(cuid())
+  commentId String
+  comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  url       String
+  createdAt DateTime @default(now())
 }

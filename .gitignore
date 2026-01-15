@@ -37,3 +37,11 @@ next-env.d.ts
 
 # prisma
 /prisma/migrations
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# uploads
+/public/uploads/*
+!/public/uploads/.gitkeep

@@ -6,7 +6,11 @@ export async function GET() {
     const admin = await isAdmin()
     return NextResponse.json({ isAdmin: admin })
   } catch (error) {
-    return NextResponse.json({ isAdmin: false })
+    console.error("Error checking admin status:", error);
+    return NextResponse.json({
+      isAdmin: false,
+      error: "Failed to check admin status",
+    });
   }
 }
 

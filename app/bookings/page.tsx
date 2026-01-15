@@ -5,8 +5,9 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { format } from "date-fns"
-import { Edit, Plus } from "lucide-react"
+import { Edit, Plus, Eye } from "lucide-react"
 import DeleteBookingButton from "@/components/DeleteBookingButton"
+import { getStatusInfo } from "@/lib/booking-status"
 
 async function getBookings() {
   const session = await auth()
@@ -67,17 +68,9 @@ export default async function BookingsPage() {
                       <CardDescription>{booking.customerEmail}</CardDescription>
                     </div>
                     <span
-                      className={`px-2 py-1 text-xs rounded-full ${
-                        booking.status === "completed"
-                          ? "bg-green-100 text-green-800"
-                          : booking.status === "in_progress"
-                          ? "bg-blue-100 text-blue-800"
-                          : booking.status === "cancelled"
-                          ? "bg-red-100 text-red-800"
-                          : "bg-yellow-100 text-yellow-800"
-                      }`}
+                      className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusInfo(booking.status).color}`}
                     >
-                      {booking.status}
+                      {getStatusInfo(booking.status).label}
                     </span>
                   </div>
                 </CardHeader>
@@ -109,6 +102,12 @@ export default async function BookingsPage() {
                     )}
                   </div>
                   <div className="flex gap-2 mt-4">
+                    <Link href={`/bookings/${booking.id}`}>
+                      <Button variant="outline" size="sm">
+                        <Eye className="h-4 w-4 mr-1" />
+                        View
+                      </Button>
+                    </Link>
                     <Link href={`/bookings/${booking.id}/edit`}>
                       <Button variant="outline" size="sm">
                         <Edit className="h-4 w-4 mr-1" />

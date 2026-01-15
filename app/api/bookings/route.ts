@@ -46,11 +46,23 @@ export async function POST(request: Request) {
       serviceType,
       scheduledDate,
       notes,
+      collectionRequired,
+      collectionAddress,
+      collectionCity,
+      collectionPostcode,
     } = body
 
     if (!customerName || !customerEmail || !shoeType || !serviceType || !scheduledDate) {
       return NextResponse.json(
         { error: "Missing required fields" },
+        { status: 400 }
+      )
+    }
+
+    // If collection is required, address fields are mandatory
+    if (collectionRequired && (!collectionAddress || !collectionCity || !collectionPostcode)) {
+      return NextResponse.json(
+        { error: "Address, city, and postcode are required when collection is needed" },
         { status: 400 }
       )
     }
@@ -62,8 +74,13 @@ export async function POST(request: Request) {
         customerPhone: customerPhone || null,
         shoeType,
         serviceType,
+        status: "pending_confirmation",
         scheduledDate: new Date(scheduledDate),
         notes: notes || null,
+        collectionRequired: collectionRequired || false,
+        collectionAddress: collectionRequired ? collectionAddress : null,
+        collectionCity: collectionRequired ? collectionCity : null,
+        collectionPostcode: collectionRequired ? collectionPostcode : null,
         userId: session.user.id,
       },
     })

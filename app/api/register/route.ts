@@ -20,11 +20,16 @@ export async function POST(request: Request) {
       )
     }
 
+    // Normalize email to lowercase and trim whitespace
+    const normalizedEmail = email.trim().toLowerCase()
+    console.log("Register: Creating user with email:", normalizedEmail)
+
     const existingUser = await prisma.user.findUnique({
-      where: { email },
+      where: { email: normalizedEmail },
     })
 
     if (existingUser) {
+      console.log("Register: User already exists:", normalizedEmail)
       return NextResponse.json(
         { error: "User already exists" },
         { status: 400 }
@@ -32,14 +37,17 @@ export async function POST(request: Request) {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10)
+    console.log("Register: Password hashed, creating user")
 
     const user = await prisma.user.create({
       data: {
         name,
-        email,
+        email: normalizedEmail,
         password: hashedPassword,
       },
     })
+
+    console.log("Register: User created successfully:", user.id, user.email)
 
     return NextResponse.json(
       { message: "User created successfully", userId: user.id },
