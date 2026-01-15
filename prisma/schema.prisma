@@ -24,10 +24,11 @@ model User {
   postcode      String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
-  accounts      Account[]
-  sessions      Session[]
-  bookings      Booking[]
-  comments      Comment[]
+  accounts            Account[]
+  sessions            Session[]
+  bookings            Booking[]
+  comments            Comment[]
+  passwordResetTokens PasswordResetToken[]
 }
 
 model Account {
@@ -62,6 +63,18 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  expires   DateTime
+  createdAt DateTime  @default(now())
+
+  @@index([token])
+  @@index([userId])
 }
 
 model Booking {
