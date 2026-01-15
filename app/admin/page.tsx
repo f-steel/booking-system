@@ -36,7 +36,6 @@ async function getAdminData() {
       orderBy: {
         scheduledDate: "desc",
       },
-      take: 10,
     }),
     prisma.booking.groupBy({
       by: ["status"],

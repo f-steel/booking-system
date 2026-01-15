@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,23 +8,19 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import UserSearch from "@/components/UserSearch";
-import { useDevAdminMode } from "@/components/DevAdminToggle";
-
-interface User {
-  id: string;
-  name: string | null;
-  email: string;
-}
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { MapPin, User } from "lucide-react";
 
 export default function NewBookingPage() {
   const router = useRouter();
-  const { isDevAdmin } = useDevAdminMode();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [formData, setFormData] = useState({
     customerName: "",
     customerEmail: "",
@@ -39,89 +35,7 @@ export default function NewBookingPage() {
     collectionPostcode: "",
   });
 
-  useEffect(() => {
-    const checkAdmin = () => {
-      // Check dev mode first - check localStorage immediately
-      // In dev mode, ONLY use dev admin toggle - ignore server admin status
-      if (process.env.NODE_ENV === "development") {
-        const localValue = localStorage.getItem("dev_admin_mode") === "true";
-        const devAdminValue = localValue || isDevAdmin;
-        setIsAdmin(devAdminValue);
-        return;
-      }
-
-      // Only check server if not in dev mode
-      async function checkServerAdmin() {
-        try {
-          const response = await fetch("/api/admin/check");
-          if (response.ok) {
-            const data = await response.json();
-            setIsAdmin(data.isAdmin);
-          }
-        } catch {
-          setIsAdmin(false);
-        }
-      }
-      checkServerAdmin();
-    };
-
-    checkAdmin();
-
-    // Listen for dev admin mode changes
-    if (process.env.NODE_ENV === "development") {
-      const handleChange = (e: CustomEvent) => {
-        setIsAdmin(e.detail.enabled);
-      };
-
-      window.addEventListener(
-        "devAdminModeChanged",
-        handleChange as EventListener
-      );
-      return () => {
-        window.removeEventListener(
-          "devAdminModeChanged",
-          handleChange as EventListener
-        );
-      };
-    }
-  }, [isDevAdmin]);
-
-  useEffect(() => {
-    if (selectedUser) {
-      setFormData((prev) => ({
-        ...prev,
-        customerName: selectedUser.name || "",
-        customerEmail: selectedUser.email,
-      }));
-    }
-  }, [selectedUser]);
-
-  // Load user profile and prepopulate address when collection is enabled
-  useEffect(() => {
-    if (formData.collectionRequired && !formData.collectionAddress) {
-      async function loadUserProfile() {
-        try {
-          const response = await fetch("/api/profile");
-          if (response.ok) {
-            const profile = await response.json();
-            // Only prepopulate if address fields are empty and profile has address
-            if (profile.address) {
-              setFormData((prev) => ({
-                ...prev,
-                collectionAddress: profile.address || "",
-                collectionCity: profile.city || "",
-                collectionPostcode: profile.postcode || "",
-              }));
-            }
-          }
-        } catch (error) {
-          // Silently fail - user might not have profile set up
-          console.error("Error loading profile:", error);
-        }
-      }
-      loadUserProfile();
-    }
-  }, [formData.collectionRequired]);
+  // Removed auto-population - user must click "Populate from User Profile" button to populate
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -165,11 +79,36 @@ export default function NewBookingPage() {
           </CardHeader>
           <CardContent className="px-4 sm:px-6">
             <form onSubmit={handleSubmit} className="space-y-4">
-              <UserSearch
-                onSelect={setSelectedUser}
-                selectedUser={selectedUser}
-                isAdmin={isAdmin}
-              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={async (e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  try {
+                    const response = await fetch("/api/profile");
+                    if (response.ok) {
+                      const profile = await response.json();
+                      setFormData((prev) => ({
+                        ...prev,
+                        customerName: profile.name || prev.customerName,
+                        customerEmail: profile.email || prev.customerEmail,
+                        customerPhone: profile.phone || prev.customerPhone,
+                        // Only populate address if collection is required
+                        collectionAddress: profile.address || "",
+                        collectionCity: profile.city || "",
+                        collectionPostcode: profile.postcode || "",
+                      }));
+                    }
+                  } catch (error) {
+                    console.error("Error loading profile:", error);
+                  }
+                }}
+              >
+                <User className="h-4 w-4 mr-2" />
+                Populate from User Profile
+              </Button>
 
               <div className="space-y-2">
                 <Label htmlFor="customerName">Customer Name *</Label>
@@ -308,50 +247,60 @@ export default function NewBookingPage() {
 
                 {formData.collectionRequired && (
                   <div className="space-y-4 pl-0 sm:pl-4 border-l-0 sm:border-l-2 border-primary/20">
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="collectionAddress" className="text-base font-medium">
-                        Collection Address *
-                      </Label>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="text-xs"
-                        onClick={async () => {
-                          try {
-                            const response = await fetch("/api/profile");
-                            if (response.ok) {
-                              const profile = await response.json();
-                              if (profile.address) {
-                                setFormData((prev) => ({
-                                  ...prev,
-                                  collectionAddress: profile.address || "",
-                                  collectionCity: profile.city || "",
-                                  collectionPostcode: profile.postcode || "",
-                                }));
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between gap-2">
+                        <Label
+                          htmlFor="collectionAddress"
+                          className="text-base font-medium"
+                        >
+                          Collection Address *
+                        </Label>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="text-xs h-8 px-3 shrink-0"
+                          onClick={async (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            try {
+                              const response = await fetch("/api/profile");
+                              console.log("response", response);
+                              if (response.ok) {
+                                const profile = await response.json();
+                                console.log("profile", profile);
+                                if (profile.address) {
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    collectionAddress: profile.address || "",
+                                    collectionCity: profile.city || "",
+                                    collectionPostcode: profile.postcode || "",
+                                  }));
+                                }
                               }
+                            } catch (error) {
+                              console.error("Error loading profile:", error);
                             }
-                          } catch (error) {
-                            console.error("Error loading profile:", error);
-                          }
-                        }}
-                      >
-                        Use Saved Address
-                      </Button>
+                          }}
+                        >
+                          <MapPin className="h-3 w-3 mr-1" />
+                          Use Saved Address
+                        </Button>
+                      </div>
+                      <Input
+                        id="collectionAddress"
+                        value={formData.collectionAddress}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            collectionAddress: e.target.value,
+                          })
+                        }
+                        required={formData.collectionRequired}
+                        placeholder="Street address"
+                        className="w-full"
+                      />
                     </div>
-                    <Input
-                      id="collectionAddress"
-                      value={formData.collectionAddress}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          collectionAddress: e.target.value,
-                        })
-                      }
-                      required={formData.collectionRequired}
-                      placeholder="Street address"
-                      className="w-full"
-                    />
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-2">
