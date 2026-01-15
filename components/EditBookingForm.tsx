@@ -130,7 +130,7 @@ export default function EditBookingForm({
   };
 
   return (
-    <Card>
+    <Card className="shadow-xl border-2">
       <CardHeader className="px-4 sm:px-6">
         <CardTitle className="flex flex-wrap items-center gap-2 text-xl sm:text-2xl">
           Edit Booking

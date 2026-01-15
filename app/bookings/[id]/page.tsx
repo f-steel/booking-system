@@ -63,7 +63,7 @@ export default async function BookingDetailPage({
   const statusInfo = getStatusInfo(booking.status)
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-4 sm:py-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 dark:from-slate-950 dark:via-gray-950 dark:to-slate-900 py-4 sm:py-8">
       <div className="container mx-auto px-4 sm:px-6 max-w-4xl">
         <Link href="/bookings">
           <Button variant="ghost" className="mb-4 w-full sm:w-auto">
@@ -73,7 +73,7 @@ export default async function BookingDetailPage({
         </Link>
 
         <div className="grid gap-6 md:grid-cols-2">
-          <Card>
+          <Card className="shadow-lg border-2">
             <CardHeader>
               <div className="flex items-start justify-between">
                 <div>
@@ -90,10 +90,12 @@ export default async function BookingDetailPage({
             <CardContent>
               <div className="space-y-3 text-sm">
                 <div>
-                  <span className="font-medium">Shoe Type:</span> {booking.shoeType}
+                  <span className="font-medium">Shoe Type:</span>{" "}
+                  {booking.shoeType}
                 </div>
                 <div>
-                  <span className="font-medium">Service:</span> {booking.serviceType}
+                  <span className="font-medium">Service:</span>{" "}
+                  {booking.serviceType}
                 </div>
                 <div>
                   <span className="font-medium">Scheduled:</span>{" "}
@@ -101,13 +103,16 @@ export default async function BookingDetailPage({
                 </div>
                 {booking.customerPhone && (
                   <div>
-                    <span className="font-medium">Phone:</span> {booking.customerPhone}
+                    <span className="font-medium">Phone:</span>{" "}
+                    {booking.customerPhone}
                   </div>
                 )}
                 {booking.notes && (
                   <div>
                     <span className="font-medium">Notes:</span>
-                    <p className="mt-1 text-muted-foreground">{booking.notes}</p>
+                    <p className="mt-1 text-muted-foreground">
+                      {booking.notes}
+                    </p>
                   </div>
                 )}
                 <div className="pt-4 border-t">
@@ -127,6 +132,6 @@ export default async function BookingDetailPage({
         </div>
       </div>
     </div>
-  )
+  );
 }
 

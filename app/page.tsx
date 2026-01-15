@@ -12,19 +12,21 @@ export default async function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 dark:from-slate-950 dark:via-gray-950 dark:to-slate-900">
+      <div className="container mx-auto px-4 py-8 sm:py-12">
+        <div className="mb-10 sm:mb-12">
+          <h1 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 dark:from-gray-100 dark:to-gray-300 bg-clip-text text-transparent mb-3">
             FK Trainers
           </h1>
-          <p className="text-gray-600">Shoe Cleaning Booking System</p>
+          <p className="text-lg text-muted-foreground">
+            Shoe Cleaning Booking System
+          </p>
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <Card>
+          <Card className="hover:shadow-lg transition-shadow duration-300 border-2 hover:border-primary/20">
             <CardHeader>
-              <CardTitle>View Bookings</CardTitle>
+              <CardTitle className="text-xl">View Bookings</CardTitle>
               <CardDescription>See all your bookings</CardDescription>
             </CardHeader>
             <CardContent>
@@ -34,9 +36,9 @@ export default async function Home() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="hover:shadow-lg transition-shadow duration-300 border-2 hover:border-primary/20">
             <CardHeader>
-              <CardTitle>New Booking</CardTitle>
+              <CardTitle className="text-xl">New Booking</CardTitle>
               <CardDescription>Create a new booking</CardDescription>
             </CardHeader>
             <CardContent>
@@ -46,22 +48,27 @@ export default async function Home() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="hover:shadow-lg transition-shadow duration-300 border-2 hover:border-primary/20">
             <CardHeader>
-              <CardTitle>Profile</CardTitle>
+              <CardTitle className="text-xl">Profile</CardTitle>
               <CardDescription>Manage your account</CardDescription>
             </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground mb-4">
+            <CardContent className="space-y-3">
+              <p className="text-sm text-muted-foreground">
                 Logged in as: {session.user?.email}
               </p>
+              <Link href="/profile">
+                <Button className="w-full">Edit Profile</Button>
+              </Link>
               <form action="/api/auth/signout" method="POST">
-                <Button type="submit" variant="outline" className="w-full">Sign Out</Button>
+                <Button type="submit" variant="outline" className="w-full">
+                  Sign Out
+                </Button>
               </form>
             </CardContent>
           </Card>
         </div>
       </div>
     </div>
-  )
+  );
 }

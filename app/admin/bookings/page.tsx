@@ -30,8 +30,8 @@ export default async function AdminBookingsPage() {
   const bookings = await getAllBookings()
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 dark:from-slate-950 dark:via-gray-950 dark:to-slate-900">
+      <div className="container mx-auto px-4 py-8 sm:py-12">
         <div className="mb-8">
           <Link href="/admin">
             <Button variant="ghost" className="mb-4">
@@ -39,15 +39,15 @@ export default async function AdminBookingsPage() {
               Back to Admin Dashboard
             </Button>
           </Link>
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+          <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 dark:from-gray-100 dark:to-gray-300 bg-clip-text text-transparent mb-2">
             All Bookings
           </h1>
-          <p className="text-gray-600">
+          <p className="text-muted-foreground">
             View and manage all bookings in the system
           </p>
         </div>
 
-        <Card>
+        <Card className="shadow-lg border-2">
           <CardHeader>
             <CardTitle>All Bookings ({bookings.length})</CardTitle>
             <CardDescription>

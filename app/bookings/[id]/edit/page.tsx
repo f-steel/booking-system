@@ -36,7 +36,7 @@ export default async function EditBookingPage({
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-4 sm:py-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 dark:from-slate-950 dark:via-gray-950 dark:to-slate-900 py-4 sm:py-8">
       <div className="container mx-auto px-4 sm:px-6 max-w-2xl">
         <EditBookingForm booking={booking} isAdmin={userIsAdmin} />
       </div>

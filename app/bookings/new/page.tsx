@@ -96,6 +96,33 @@ export default function NewBookingPage() {
     }
   }, [selectedUser]);
 
+  // Load user profile and prepopulate address when collection is enabled
+  useEffect(() => {
+    if (formData.collectionRequired && !formData.collectionAddress) {
+      async function loadUserProfile() {
+        try {
+          const response = await fetch("/api/profile");
+          if (response.ok) {
+            const profile = await response.json();
+            // Only prepopulate if address fields are empty and profile has address
+            if (profile.address) {
+              setFormData((prev) => ({
+                ...prev,
+                collectionAddress: profile.address || "",
+                collectionCity: profile.city || "",
+                collectionPostcode: profile.postcode || "",
+              }));
+            }
+          }
+        } catch (error) {
+          // Silently fail - user might not have profile set up
+          console.error("Error loading profile:", error);
+        }
+      }
+      loadUserProfile();
+    }
+  }, [formData.collectionRequired]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -125,11 +152,11 @@ export default function NewBookingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-4 sm:py-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 dark:from-slate-950 dark:via-gray-950 dark:to-slate-900 py-4 sm:py-8">
       <div className="container mx-auto px-4 sm:px-6 max-w-2xl">
-        <Card>
+        <Card className="shadow-xl border-2">
           <CardHeader className="px-4 sm:px-6">
-            <CardTitle className="text-xl sm:text-2xl">
+            <CardTitle className="text-xl sm:text-2xl bg-gradient-to-r from-gray-900 to-gray-700 dark:from-gray-100 dark:to-gray-300 bg-clip-text text-transparent">
               Create New Booking
             </CardTitle>
             <CardDescription className="text-sm">
@@ -281,24 +308,50 @@ export default function NewBookingPage() {
 
                 {formData.collectionRequired && (
                   <div className="space-y-4 pl-0 sm:pl-4 border-l-0 sm:border-l-2 border-primary/20">
-                    <div className="space-y-2">
-                      <Label htmlFor="collectionAddress">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="collectionAddress" className="text-base font-medium">
                         Collection Address *
                       </Label>
-                      <Input
-                        id="collectionAddress"
-                        value={formData.collectionAddress}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            collectionAddress: e.target.value,
-                          })
-                        }
-                        required={formData.collectionRequired}
-                        placeholder="Street address"
-                        className="w-full"
-                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="text-xs"
+                        onClick={async () => {
+                          try {
+                            const response = await fetch("/api/profile");
+                            if (response.ok) {
+                              const profile = await response.json();
+                              if (profile.address) {
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  collectionAddress: profile.address || "",
+                                  collectionCity: profile.city || "",
+                                  collectionPostcode: profile.postcode || "",
+                                }));
+                              }
+                            }
+                          } catch (error) {
+                            console.error("Error loading profile:", error);
+                          }
+                        }}
+                      >
+                        Use Saved Address
+                      </Button>
                     </div>
+                    <Input
+                      id="collectionAddress"
+                      value={formData.collectionAddress}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          collectionAddress: e.target.value,
+                        })
+                      }
+                      required={formData.collectionRequired}
+                      placeholder="Street address"
+                      className="w-full"
+                    />
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-2">
