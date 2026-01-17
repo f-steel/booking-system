@@ -4,15 +4,15 @@ import { useState } from "react";
 import Link from "next/link"
 import { useSession, signOut } from "next-auth/react"
 import { Button } from "@/components/ui/button"
-import { Home, Calendar, LogOut, Menu, X } from "lucide-react";
-import AdminLink from "./AdminLink"
+import { Home, Calendar, LogOut, Menu, X, User } from "lucide-react";
+import AdminLink from "./AdminLink";
 
 export default function Navigation() {
-  const { data: session } = useSession()
+  const { data: session } = useSession();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   if (!session) {
-    return null
+    return null;
   }
 
   return (
@@ -43,9 +43,12 @@ export default function Navigation() {
             </div>
           </div>
           <div className="flex items-center gap-2 sm:gap-4">
-            <span className="text-xs sm:text-sm text-muted-foreground hidden sm:inline">
-              {session.user?.email}
-            </span>
+            <Link href="/profile">
+              <Button variant="ghost" size="sm">
+                <User className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Profile</span>
+              </Button>
+            </Link>
             <Button
               variant="outline"
               size="sm"

@@ -1,7 +1,8 @@
 "use client"
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,12 +16,18 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { MapPin, User } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { MapPin, User, Info } from "lucide-react";
 
 export default function NewBookingPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [hasSavedAddress, setHasSavedAddress] = useState<boolean | null>(null);
   const [formData, setFormData] = useState({
     customerName: "",
     customerEmail: "",
@@ -35,7 +42,26 @@ export default function NewBookingPage() {
     collectionPostcode: "",
   });
 
-  // Removed auto-population - user must click "Populate from User Profile" button to populate
+  // Check if user has a saved address on mount
+  useEffect(() => {
+    const checkSavedAddress = async () => {
+      try {
+        const response = await fetch("/api/profile");
+        if (response.ok) {
+          const profile = await response.json();
+          setHasSavedAddress(
+            !!(profile.address && profile.city && profile.postcode)
+          );
+        } else {
+          setHasSavedAddress(false);
+        }
+      } catch (error) {
+        console.error("Error checking saved address:", error);
+        setHasSavedAddress(false);
+      }
+    };
+    checkSavedAddress();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -255,37 +281,68 @@ export default function NewBookingPage() {
                         >
                           Collection Address *
                         </Label>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          className="text-xs h-8 px-3 shrink-0"
-                          onClick={async (e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            try {
-                              const response = await fetch("/api/profile");
-                              console.log("response", response);
-                              if (response.ok) {
-                                const profile = await response.json();
-                                console.log("profile", profile);
-                                if (profile.address) {
-                                  setFormData((prev) => ({
-                                    ...prev,
-                                    collectionAddress: profile.address || "",
-                                    collectionCity: profile.city || "",
-                                    collectionPostcode: profile.postcode || "",
-                                  }));
+                        {hasSavedAddress === true ? (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="text-xs h-8 px-3 shrink-0"
+                            onClick={async (e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              try {
+                                const response = await fetch("/api/profile");
+                                if (response.ok) {
+                                  const profile = await response.json();
+                                  if (profile.address) {
+                                    setFormData((prev) => ({
+                                      ...prev,
+                                      collectionAddress: profile.address || "",
+                                      collectionCity: profile.city || "",
+                                      collectionPostcode:
+                                        profile.postcode || "",
+                                    }));
+                                  }
                                 }
+                              } catch (error) {
+                                console.error("Error loading profile:", error);
                               }
-                            } catch (error) {
-                              console.error("Error loading profile:", error);
-                            }
-                          }}
-                        >
-                          <MapPin className="h-3 w-3 mr-1" />
-                          Use Saved Address
-                        </Button>
+                            }}
+                          >
+                            <MapPin className="h-3 w-3 mr-1" />
+                            Use Saved Address
+                          </Button>
+                        ) : hasSavedAddress === false ? (
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                className="text-xs h-8 px-3 shrink-0"
+                              >
+                                <Info className="h-3 w-3 mr-1" />
+                                No Saved Address
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-80">
+                              <div className="space-y-3">
+                                <h4 className="font-medium text-sm">
+                                  No saved address found
+                                </h4>
+                                <Link href="/profile">
+                                  <Button
+                                    type="button"
+                                    size="sm"
+                                    className="w-full"
+                                  >
+                                    Go to Profile
+                                  </Button>
+                                </Link>
+                              </div>
+                            </PopoverContent>
+                          </Popover>
+                        ) : null}
                       </div>
                       <Input
                         id="collectionAddress"
